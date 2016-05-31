@@ -47,20 +47,8 @@ function simplify_gcode(gcode_str)
     var output = [];
     var reader = new FileReader();
     
-reader.onloadend = function(evt){
-      if (evt.target.readyState == FileReader.DONE) {
-console.log(this.f.name);
-var simplified=simplify_gcode(evt.target.result);
-console.log(evt.target);
-document.getElementById('file_text').innerHTML='<a id="zapisz_plik" href=""><b>Zapisz plik</b></a></br>'+nl2br(simplified);
-
-document.getElementById("zapisz_plik").onclick = function(event) {
-event.preventDefault();
-download(simplified,"uproszczony_plik.nc","application/x-netcdf");
-}
 
 
-}}
 
 
 
@@ -69,6 +57,34 @@ download(simplified,"uproszczony_plik.nc","application/x-netcdf");
                   f.size, ' bytes, last modified: ',
                   f.lastModifiedDate ? f.lastModifiedDate.toLocaleDateString() : 'n/a',
                   '</li>');
+
+	reader.onload = (function(theFile) {
+		return function(evt){
+	      
+		
+			var simplified=simplify_gcode(evt.target.result);
+		
+			document.getElementById('file_text').innerHTML='<a id="safe_file" href="#"><b>Safe file</b></a></br><span class="gcode">'+nl2br(simplified)+'</span>';
+			
+		
+
+			function click_download(event) 
+				{
+				event.preventDefault();
+				download(simplified,"truncated_"+theFile.name,theFile.type);
+				return false;
+				}
+
+			document.getElementById("safe_file").addEventListener('click',click_download,false);
+			//document.getElementById("safe_file").onclick = 
+			//click_download(event);
+		
+
+
+	
+		};
+	})(f);
+
 
       reader.readAsText(f);
     }
